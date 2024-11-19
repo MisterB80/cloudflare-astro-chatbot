@@ -10,3 +10,7 @@ assets = { directory = "./dist", binding = "ASSETS" }
 # Configuration: https://developers.cloudflare.com/workers/observability/logs/workers-logs/#enable-workers-logs
 [observability]
 enabled = true
+
+
+[ai]
+binding = "AI"
