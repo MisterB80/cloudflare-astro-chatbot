@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type chatMessage = {
   source: "user" | "ai";
@@ -8,6 +8,12 @@ type chatMessage = {
 const Chat = () => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<chatMessage[]>([]);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatHistory]); // Run when chatHistory changes
+
 
   const handleSendMessage = () => {
     sendMessage(message);
@@ -31,27 +37,38 @@ const Chat = () => {
   };
 
   return (
-    <div>
-      <div className='flex flex-col gap-2'>
-        {chatHistory.map((msg, key) =>
-          <div key={key} className='prose'>{msg.message}</div>
-        )}
+    <div className="flex flex-col h-screen">
+      {/* Chat History Section */}
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex flex-col gap-2">
+          {chatHistory.map((msg, key) => (
+            <div key={key} className={`chat ${msg.source === "ai" ? "chat-start" : "chat-end"}`}>
+              <div className={`prose chat-bubble ${msg.source === "ai" ? "chat-bubble-secondary" : "chat-bubble-primary"}`}>
+                {msg.message}
+              </div>
+            </div>
+          ))}
+          {/* Dummy div to ensure we can scroll to the bottom */}
+          <div ref={chatEndRef}></div>
+        </div>
       </div>
-      <div className="fixed bottom-0 left-0 w-full flex items-center gap-2 p-4">
+
+      {/* Send Message Section */}
+      <div className="flex items-center gap-2 p-4">
         <input
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+          onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
           placeholder="Type your message..."
-          className="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300 border-gray-300"
+          className="flex-1 input input-bordered"
         />
-        <button className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
-          onClick={handleSendMessage}>
+        <button className="btn btn-primary" onClick={handleSendMessage}>
           Send
         </button>
       </div>
     </div>
+
   );
 };
 

@@ -27,6 +27,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241112.0",
     "@tailwindcss/typography": "^0.5.15",
+    "daisyui": "^4.12.14",
     "wrangler": "^3.87.0"
   }
 }
