@@ -16,6 +16,7 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+.drizzle.env
 
 # macOS-specific files
 .DS_Store
@@ -26,3 +27,4 @@ pnpm-debug.log*
 # wrangler files
 .wrangler
 .dev.vars
+
