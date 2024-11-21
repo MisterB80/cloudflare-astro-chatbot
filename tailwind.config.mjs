@@ -9,6 +9,7 @@ export default {
 		require('daisyui'),
 	],
 	daisyui: {
-		themes: ["winter", "coffee"],
+		themes: ["winter", "night"],
+		darkTheme: "night"
 	},
 }
