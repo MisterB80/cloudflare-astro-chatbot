@@ -22,7 +22,7 @@ binding = "AI"
 binding = "DB"
 database_name = "chat-prod"
 database_id = "6e9beb9c-7844-4727-b689-071349b0f8be"
-# preview_database_id = "DB"
+preview_database_id = "DB"
 
 # [env.preview]
 # name = "preview"

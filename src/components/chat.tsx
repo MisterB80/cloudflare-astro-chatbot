@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown'
 
 type chatMessage = {
   source: "user" | "ai";
@@ -44,7 +45,7 @@ const Chat = () => {
           {chatHistory.map((msg, key) => (
             <div key={key} className={`chat ${msg.source === "ai" ? "chat-start" : "chat-end"}`}>
               <div className={`prose chat-bubble ${msg.source === "ai" ? "chat-bubble-secondary" : "chat-bubble-primary"}`}>
-                {msg.message}
+                <ReactMarkdown>{msg.message}</ReactMarkdown>
               </div>
             </div>
           ))}

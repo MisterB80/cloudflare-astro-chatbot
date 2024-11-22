@@ -31,7 +31,8 @@ export async function POST({ request, locals }: APIContext) {
   });
 
   let messages: RoleScopedChatInput[] = [
-    { role: "system", content: "You are a friendly assistant" },
+    { role: "system", content: "You are a friendly assistant." },
+    { role: "system", content: "Ensure responses are coherent and make complete sense in the language used." },
     ...mappedMessages,
     { role: "user", content: payload.text },
   ];
