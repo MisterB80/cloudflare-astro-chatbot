@@ -32,9 +32,8 @@ const Chat = () => {
       body: JSON.stringify({ text: message }),
     });
     const data: any = await response.json();
-    console.log(data); // Handle response from AI LLM
 
-    setChatHistory(prevChatHistory => [...prevChatHistory, { source: "ai", message: data.response }]);
+    setChatHistory(prevChatHistory => [...prevChatHistory, { source: "ai", message: data }]);
     setMessage(''); // Clear input after sending
   };
 

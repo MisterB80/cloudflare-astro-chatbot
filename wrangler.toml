@@ -1,5 +1,5 @@
 #:schema node_modules/wrangler/config-schema.json
-#name = "cloudflare-astro-chatbot"
+name = "cloudflare-astro-chatbot"
 #compatibility_date = "2024-11-12"
 #compatibility_flags = ["nodejs_compat_v2"]
 #main = "./dist/_worker.js/index.js"
@@ -30,3 +30,14 @@ preview_database_id = "DB"
 # binding = "DB"
 # database_name = "chat-preview"
 # database_id = "f8d093b8-82ed-464a-91fc-e9bfee69bee1"
+
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "chat-vectors"
+
+
+
+[vars]
+CLOUDFLARE_ACCOUNT_ID = "$CLOUDFLARE_ACCOUNT_ID"
+CLOUDFLARE_API_TOKEN = "$CLOUDFLARE_API_TOKEN"

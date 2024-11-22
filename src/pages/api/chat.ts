@@ -3,6 +3,13 @@ import { eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { exchangeSummary, chatHistory } from "../../schema";
 
+import {
+  ChatCloudflareWorkersAI,
+  CloudflareVectorizeStore,
+  CloudflareWorkersAIEmbeddings,
+} from "@langchain/cloudflare";
+import { HumanMessage, AIMessage } from "@langchain/core/messages";
+import { HttpResponseOutputParser } from "langchain/output_parsers";
 
 type Request = {
   text: string;
@@ -13,50 +20,23 @@ export async function POST({ request, locals }: APIContext) {
 
   const conversationId = "testId";
 
-  const { AI, DB } = locals.runtime.env;
+  const { AI, DB, VECTORIZE, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN } = locals.runtime.env;
 
-  const db = drizzle(DB);
-
-  const conversation = await db.select()
-    .from(chatHistory)
-    .where(eq(chatHistory.conversationId, conversationId))
-    .orderBy(desc(chatHistory.created))
-    .limit(10);
-
-  const mappedMessages = conversation.reverse().map((message: { agent: string; text: string }) => {
-    return {
-      role: message.agent === 'user' ? 'user' : 'assistant' as 'user' | 'assistant',
-      content: message.text,
-    };
+  const llm = new ChatCloudflareWorkersAI({
+    model: "@cf/meta/llama-3-8b-instruct",
+    cloudflareAccountId: CLOUDFLARE_ACCOUNT_ID,
+    cloudflareApiToken: CLOUDFLARE_API_TOKEN,
   });
 
-  let messages: RoleScopedChatInput[] = [
-    { role: "system", content: "You are a friendly assistant." },
-    { role: "system", content: "Ensure responses are coherent and make complete sense in the language used." },
-    ...mappedMessages,
-    { role: "user", content: payload.text },
-  ];
+  const aiMsg = await llm.invoke([
+    [
+      "system",
+      "You are a friendly assistant. Ensure responses are coherent and make complete sense in the language used. If you don't know something or are unfamiliar, please don't make anything up, just say that you don't know.",
+    ],
+    ["human", payload.text],
+  ]);
+  aiMsg;
 
-  //@ts-expect-error
-  const response = await AI.run("@cf/meta/llama-3.2-3b-instruct", { messages }) as AiTextGenerationOutput;
-
-  // messages = [
-  //   { role: "system", content: "You are a summarisation bot that needs to extract key points and/or facts from the following exchange." },
-  //   { role: "user", content: payload.text },
-  //   { role: "assistant", content: (response as any).response },
-  // ];
-
-  // //@ts-expect-error
-  // const summary = await AI.run("@cf/meta/llama-3.2-3b-instruct", { messages }) as AiTextGenerationOutput;
-
-  await db
-    .insert(chatHistory)
-    .values([
-      { conversationId, agent: "user", text: payload.text },
-      { conversationId, agent: "assistant", text: (response as any).response }
-    ]);
-
-
-  return Response.json(response);
+  return Response.json(aiMsg.content);
 
 };
