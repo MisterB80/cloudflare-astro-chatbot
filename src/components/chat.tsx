@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 type chatMessage = {
   source: "user" | "ai";
@@ -44,8 +45,8 @@ const Chat = () => {
         <div className="flex flex-col gap-2">
           {chatHistory.map((msg, key) => (
             <div key={key} className={`chat ${msg.source === "ai" ? "chat-start" : "chat-end"}`}>
-              <div className={`prose chat-bubble ${msg.source === "ai" ? "chat-bubble-secondary" : "chat-bubble-primary"}`}>
-                <ReactMarkdown>{msg.message}</ReactMarkdown>
+              <div className={`prose chat-bubble ${msg.source === "ai" ? "chat-bubble-info" : "chat-bubble-primary"}`}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.message}</ReactMarkdown>
               </div>
             </div>
           ))}
