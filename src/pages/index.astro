@@ -1,8 +1,28 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Chat from '../components/chat';
+import FileUploader from '../components/fileUploader';
 ---
 
 <Layout title="Chat">
-   <Chat client:load />
+   <FileUploader client:load />
 </Layout>
+
+<script>
+   window.addEventListener('onUpload', async (event) => {
+      const customEvent = event as CustomEvent<{ filenames: string[] }>; // Cast to CustomEvent
+      const { filenames } = customEvent.detail;
+      console.log('Files selected:', filenames);
+
+      const formData = new FormData();
+      filenames.forEach((file) => formData.append('files', file));
+
+      const result = await fetch('/api/files', {
+         method: 'POST',
+         body: formData,
+      });
+
+      const body = await result.json();
+
+      console.log(result, body);
+   });
+</script>

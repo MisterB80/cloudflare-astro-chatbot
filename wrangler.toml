@@ -41,3 +41,8 @@ index_name = "chat-vectors"
 [vars]
 CLOUDFLARE_ACCOUNT_ID = "$CLOUDFLARE_ACCOUNT_ID"
 CLOUDFLARE_API_TOKEN = "$CLOUDFLARE_API_TOKEN"
+
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "document-chat-demo"

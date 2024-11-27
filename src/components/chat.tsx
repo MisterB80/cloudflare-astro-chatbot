@@ -7,7 +7,7 @@ type chatMessage = {
   message: string
 }
 
-const Chat = () => {
+const ChatComponent = () => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<chatMessage[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -73,4 +73,4 @@ const Chat = () => {
   );
 };
 
-export default Chat;
+export default ChatComponent;
