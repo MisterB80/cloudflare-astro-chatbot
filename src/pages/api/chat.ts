@@ -6,7 +6,7 @@ import {
   CloudflareWorkersAIEmbeddings,
   CloudflareD1MessageHistory,
 } from "@langchain/cloudflare";
-import { HumanMessage, AIMessage } from "@langchain/core/messages";
+import { HumanMessage, AIMessage, SystemMessage } from "@langchain/core/messages";
 import { HttpResponseOutputParser } from "langchain/output_parsers";
 import { ConversationChain } from "langchain/chains"
 import { BufferMemory } from "langchain/memory";
@@ -45,7 +45,7 @@ export async function POST({ request, locals }: APIContext) {
   });
 
   const prompt = ChatPromptTemplate.fromMessages([
-    ["system", "You are a friendly assistant. Ensure responses are coherent and make complete sense in the language used. If you don't know something or are unfamiliar, please don't make anything up, just say that you don't know."],
+    new SystemMessage("You are a friendly assistant. Ensure responses are coherent and make complete sense in the language used. If you don't know something or are unfamiliar, please don't make anything up, just say that you don't know."),
     new MessagesPlaceholder("history"),
     ["human", "{input}"],
   ]);
