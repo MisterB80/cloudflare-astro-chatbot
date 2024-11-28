@@ -21,7 +21,9 @@
     "@astrojs/cloudflare": "^11.2.0",
     "@astrojs/react": "^3.6.2",
     "@astrojs/tailwind": "^5.1.2",
+    "@cloudflare/ai": "^1.2.2",
     "@langchain/cloudflare": "^0.1.0",
+    "@langchain/community": "^0.3.16",
     "@langchain/core": "^0.3.18",
     "@langchain/langgraph": "^0.2.22",
     "@types/react": "^18.3.12",
@@ -29,6 +31,7 @@
     "astro": "^4.16.13",
     "drizzle-orm": "^0.36.3",
     "langchain": "^0.3.6",
+    "pdf-parse": "^1.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
@@ -37,7 +40,7 @@
     "typescript": "^5.6.3"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241112.0",
+    "@cloudflare/workers-types": "^4.20241127.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^22.9.1",
     "better-sqlite3": "^11.5.0",

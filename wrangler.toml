@@ -34,9 +34,7 @@ preview_database_id = "DB"
 
 [[vectorize]]
 binding = "VECTORIZE"
-index_name = "chat-vectors"
-
-
+index_name = "document-vector-index"
 
 [vars]
 CLOUDFLARE_ACCOUNT_ID = "$CLOUDFLARE_ACCOUNT_ID"

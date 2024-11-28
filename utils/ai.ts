@@ -1,4 +1,4 @@
-// import { WebPDFLoader } from "langchain/document_loaders/web/pdf";
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { Document } from "@langchain/core/documents";
 import type { VectorStore } from "@langchain/core/vectorstores";
@@ -10,8 +10,6 @@ import {
     CloudflareD1MessageHistory,
 } from "@langchain/cloudflare";
 import { HumanMessage, AIMessage, SystemMessage } from "@langchain/core/messages";
-import { HttpResponseOutputParser } from "langchain/output_parsers";
-import { ConversationChain } from "langchain/chains"
 import { BufferMemory } from "langchain/memory";
 import {
     ChatPromptTemplate,
@@ -39,8 +37,17 @@ export async function chat(inputText: string, sessionId: string, documentKey: st
         }),
     });
 
+    let SYSTEM_TEMPLATE = "You are a friendly assistant. Ensure responses are coherent and make complete sense in the language used. If you don't know something or are unfamiliar, please don't make anything up, just say that you don't know."
+
+    if (documentKey) {
+        SYSTEM_TEMPLATE = `Use the following pieces of context to answer the question at the end.
+        If you don't know the answer, just say that you don't know, don't try to make up an answer.
+        ----------------
+        {context}`;
+    }
+
     const prompt = ChatPromptTemplate.fromMessages([
-        new SystemMessage("You are a friendly assistant. Ensure responses are coherent and make complete sense in the language used. If you don't know something or are unfamiliar, please don't make anything up, just say that you don't know."),
+        new SystemMessage(SYSTEM_TEMPLATE),
         new MessagesPlaceholder("history"),
         ["human", "{input}"],
     ]);
@@ -68,3 +75,59 @@ export async function chat(inputText: string, sessionId: string, documentKey: st
 
     return res;
 }
+
+export async function ingestPdf(file: any, locals: App.Locals) {
+
+    const { AI, VECTORIZE } = locals.runtime.env;
+
+    const loader = new PDFLoader(file, {
+        splitPages: false,
+    });
+
+    const textSplitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 500,
+        chunkOverlap: 0,
+    });
+
+    const embeddings = new CloudflareWorkersAIEmbeddings({
+        //@ts-ignore
+        binding: AI,
+        modelName: "@cf/baai/bge-base-en-v1.5",
+    });
+
+    const store = new CloudflareVectorizeStore(embeddings, {
+        index: VECTORIZE,
+    });
+
+    const pdfDocument = await loader.load();
+    const docs = await textSplitter.splitDocuments(pdfDocument);
+
+    const result = await upsertDocsToVectorstore(store, docs, file.name);
+}
+
+const upsertDocsToVectorstore = async (
+    vectorstore: VectorStore,
+    docs: Document[],
+    filename: string
+) => {
+    const ids = [];
+    const encoder = new TextEncoder();
+    for (const doc of docs) {
+        doc.metadata = { ...doc.metadata, filename }
+
+        console.log(doc.metadata);
+
+        const insecureHash = await crypto.subtle.digest(
+            "SHA-1",
+            encoder.encode(doc.pageContent),
+        );
+        // Use a hash of the page content as an id
+        const hashArray = Array.from(new Uint8Array(insecureHash));
+        const readableId = hashArray
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+        ids.push(readableId);
+    }
+    const result = await vectorstore.addDocuments(docs, { ids });
+    return result;
+};

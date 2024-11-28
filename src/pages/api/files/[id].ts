@@ -5,8 +5,6 @@ export async function DELETE({ params, locals }: APIContext) {
 
     const { id } = params;
 
-    console.log(id);
-
     if (!id) {
         return new Response(JSON.stringify({ error: 'ID is required' }), { status: 400 });
     }

@@ -1,4 +1,5 @@
 import type { APIContext } from "astro";
+import { ingestPdf } from "../../../../utils/ai";
 
 export async function POST({ request, locals }: APIContext) {
     const { R2_BUCKET } = locals.runtime.env;
@@ -18,6 +19,8 @@ export async function POST({ request, locals }: APIContext) {
                 status: 'success',
                 result: uploadResult,
             });
+
+            await ingestPdf(file, locals);
         } catch (error: any) {
             console.error(`Failed to upload file: ${file.name}`, error);
             uploadResults.push({
