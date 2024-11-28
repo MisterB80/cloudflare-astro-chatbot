@@ -1,0 +1,53 @@
+---
+const { key, size, lastModified } = Astro.props;
+
+const formatDate = (dateString: string) => {
+   const now = new Date();
+   const date = new Date(dateString);
+   const yesterday = new Date(now);
+   yesterday.setDate(yesterday.getDate() - 1);
+
+   const isToday = date.toDateString() === now.toDateString();
+   const isYesterday = date.toDateString() === yesterday.toDateString();
+
+   const timeString = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+   if (isToday) {
+      return `Today at ${timeString}`;
+   } else if (isYesterday) {
+      return `Yesterday at ${timeString}`;
+   } else {
+      const options: Intl.DateTimeFormatOptions = {
+         weekday: 'long', // "long", "short", or "narrow"
+         day: 'numeric', // "numeric" or "2-digit"
+         month: 'long', // "long", "short", or "narrow"
+         year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined, // Show year only if it's different from the current year
+         hour: '2-digit', // "numeric" or "2-digit"
+         minute: '2-digit', // "numeric" or "2-digit"
+      };
+
+      return date.toLocaleDateString('en-GB', options);
+   }
+};
+
+function formatBytes(bytes: number, decimals: number = 1): string {
+   if (bytes === 0) return '0B';
+   const k = 1024;
+   const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+   const i = Math.floor(Math.log(bytes) / Math.log(k));
+   const formattedValue = parseFloat((bytes / Math.pow(k, i)).toFixed(decimals));
+   return `${formattedValue} ${sizes[i]}`;
+}
+---
+
+<div class="card bg-base-100 w-96 shadow-xl">
+   <div class="card-body">
+      <h2 class="card-title">{key}</h2>
+      <p>Size: {formatBytes(size)}</p>
+      <p>Last Modified: {formatDate(lastModified)}</p>
+      <div class="card-actions justify-end">
+         <button class="btn btn-primary btn-delete" data-key={key}>Delete</button>
+         <button class="btn btn-primary">Chat</button>
+      </div>
+   </div>
+</div>

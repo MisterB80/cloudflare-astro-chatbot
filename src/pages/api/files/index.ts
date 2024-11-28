@@ -34,3 +34,22 @@ export async function POST({ request, locals }: APIContext) {
         headers: { "Content-Type": "application/json" },
     });
 }
+
+export async function GET({ locals }: APIContext) {
+    const { R2_BUCKET } = locals.runtime.env;
+
+    // Fetch the list of files from the R2 bucket
+    const result = await R2_BUCKET.list();
+
+    // Extract the files or objects from the result
+    const files = result.objects?.map((object) => ({
+        key: object.key, // File key (path in the bucket)
+        size: object.size, // File size in bytes
+        lastModified: object.uploaded, // Last modified date
+    }));
+
+    return new Response(JSON.stringify(files), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+    });
+}

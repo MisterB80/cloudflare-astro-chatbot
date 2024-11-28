@@ -1,28 +1,75 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import FileUploader from '../components/fileUploader';
+import FileUploader from '../components/react/fileUploader';
+import FileCard from '../components/fileCard.astro';
+
+type File = {
+   key: string;
+   size: number;
+   lastModified: string;
+};
+
+const fetchFiles = async () => {
+   const response = await fetch(`${Astro.url.origin}/api/files`);
+   const files = await response.json();
+   return files as File[];
+};
+
+const files = await fetchFiles();
+
+console.log(files);
 ---
 
 <Layout title="Chat">
-   <FileUploader client:load />
-</Layout>
+   <div>
+      <FileUploader client:load />
+      <div class="flex flex-row flex-wrap gap-2">
+         {files.map((f) => <FileCard {...f} />)}
+      </div>
+   </div>
 
-<script>
-   window.addEventListener('onUpload', async (event) => {
-      const customEvent = event as CustomEvent<{ filenames: string[] }>; // Cast to CustomEvent
-      const { filenames } = customEvent.detail;
-      console.log('Files selected:', filenames);
+   <script>
+      window.addEventListener('onUpload', async (event) => {
+         const customEvent = event as CustomEvent<{ filenames: string[] }>; // Cast to CustomEvent
+         const { filenames } = customEvent.detail;
+         console.log('Files selected:', filenames);
 
-      const formData = new FormData();
-      filenames.forEach((file) => formData.append('files', file));
+         const formData = new FormData();
+         filenames.forEach((file) => formData.append('files', file));
 
-      const result = await fetch('/api/files', {
-         method: 'POST',
-         body: formData,
+         const response = await fetch('/api/files', {
+            method: 'POST',
+            body: formData,
+         });
+
+         const body = await response.json();
+
+         console.log(response, body);
       });
 
-      const body = await result.json();
+      document.addEventListener('DOMContentLoaded', () => {
+         document.querySelectorAll('.btn-delete').forEach((button) => {
+            button.addEventListener('click', () => {
+               const key = button.getAttribute('data-key');
+               if (key) handleDelete(key);
+            });
+         });
 
-      console.log(result, body);
-   });
-</script>
+         async function handleDelete(key: string) {
+            const response = await fetch(`/api/files/${key}`, {
+               method: 'DELETE',
+            });
+
+            if (response.ok) {
+               const card = document.querySelector(`.card .btn-delete[data-key="${key}"]`)?.closest('.card');
+
+               if (card) {
+                  card.remove();
+               } else {
+                  console.error(`Card with data-key="${key}" not found.`);
+               }
+            }
+         }
+      });
+   </script>
+</Layout>
