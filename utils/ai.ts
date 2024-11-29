@@ -37,13 +37,15 @@ export async function chat(inputText: string, sessionId: string, documentKey: st
         }),
     });
 
-    let SYSTEM_TEMPLATE = "You are a friendly assistant. Ensure responses are coherent and make complete sense in the language used. If you don't know something or are unfamiliar, please don't make anything up, just say that you don't know."
+    let SYSTEM_TEMPLATE = "You are a helpful assistant. Ensure responses are coherent, concise and make complete sense in the language used. If you don't know something or are unfamiliar, please don't make anything up, just say that you don't know."
+    let context = "";
 
     if (documentKey) {
-        SYSTEM_TEMPLATE = `Use the following pieces of context to answer the question at the end.
+        SYSTEM_TEMPLATE += `Use the following pieces of context to answer the question at the end.
         If you don't know the answer, just say that you don't know, don't try to make up an answer.
-        ----------------
-        {context}`;
+        ----------------`;
+
+        SYSTEM_TEMPLATE += await getContext(inputText, documentKey, locals);
     }
 
     const prompt = ChatPromptTemplate.fromMessages([
@@ -66,12 +68,18 @@ export async function chat(inputText: string, sessionId: string, documentKey: st
         new StringOutputParser(),
     ]);
 
+    // const chainInput = context ? { input: inputText, context } : { input: inputText };
     const chainInput = { input: inputText };
 
     const res = await chain.invoke(chainInput);
-    const storeRes = await memory.saveContext(chainInput, {
-        output: res,
-    });
+
+    if (res) {
+        const storeRes = await memory.saveContext(chainInput, {
+            output: res,
+        });
+    }
+    console.log(res);
+
 
     return res;
 }
@@ -158,4 +166,26 @@ export async function deleteVectors(locals: App.Locals) {
 
 
 
+}
+
+
+async function getContext(inputText: string, documentKey: string, locals: App.Locals): Promise<string> {
+    const { AI, VECTORIZE } = locals.runtime.env;
+
+    const { data } = await AI.run("@cf/baai/bge-base-en-v1.5", {
+        text: [inputText],
+    });
+
+    const values = data[0];
+
+    let matches = await VECTORIZE.query(values, {
+        topK: 3,
+        filter: { filename: documentKey },
+        returnValues: true,
+        returnMetadata: 'all',
+    });
+
+    const text = matches.matches.map((m) => m.metadata?.text).join("/n")
+
+    return text;
 }

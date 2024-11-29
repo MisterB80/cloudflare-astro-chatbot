@@ -47,7 +47,7 @@ function formatBytes(bytes: number, decimals: number = 1): string {
       <p>Last Modified: {formatDate(lastModified)}</p>
       <div class="card-actions justify-end">
          <button class="btn btn-primary btn-delete" data-key={key}>Delete</button>
-         <button class="btn btn-primary">Chat</button>
+         <a class="btn btn-primary" href=`/chat/${encodeURIComponent(key)}`>Chat</a>
       </div>
    </div>
 </div>

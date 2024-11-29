@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ChatComponent from '../../components/react/chat';
+import { v4 as uuidv4 } from 'uuid';
+
+const { id } = Astro.params;
+
+const sessionId = uuidv4();
+---
+
+<Layout title="Chat">
+   <ChatComponent client:load documentId={id || ''} sessionId={sessionId} />
+</Layout>

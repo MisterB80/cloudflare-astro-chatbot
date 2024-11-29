@@ -7,10 +7,17 @@ type chatMessage = {
   message: string
 }
 
-const ChatComponent = () => {
+type InputProps = {
+  documentId: string,
+  sessionId: string
+}
+
+const ChatComponent = (props: InputProps) => {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<chatMessage[]>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const { documentId, sessionId } = props;
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -29,8 +36,9 @@ const ChatComponent = () => {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: message }),
+      body: JSON.stringify({ text: message, session: sessionId, document: documentId }),
     });
+
     const data: any = await response.json();
 
     setChatHistory(prevChatHistory => [...prevChatHistory, { source: "ai", message: data }]);
