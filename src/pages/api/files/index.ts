@@ -19,8 +19,6 @@ export async function POST({ request, locals }: APIContext) {
                 status: 'success',
                 result: uploadResult,
             });
-
-            await ingestPdf(file, locals);
         } catch (error: any) {
             console.error(`Failed to upload file: ${file.name}`, error);
             uploadResults.push({
@@ -29,6 +27,12 @@ export async function POST({ request, locals }: APIContext) {
                 status: 'error',
                 error: error.message,
             });
+        }
+
+        try {
+            await ingestPdf(file, locals);
+        } catch (error: any) {
+            console.error(`Failed to ingest file: ${file.name}`, error);
         }
     }
 

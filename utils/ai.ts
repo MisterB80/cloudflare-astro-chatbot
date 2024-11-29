@@ -1,7 +1,7 @@
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { Document } from "@langchain/core/documents";
-import type { VectorStore } from "@langchain/core/vectorstores";
+import { VectorStore } from "@langchain/core/vectorstores";
 
 import {
     ChatCloudflareWorkersAI,
@@ -101,7 +101,6 @@ export async function ingestPdf(file: any, locals: App.Locals) {
 
     const pdfDocument = await loader.load();
     const docs = await textSplitter.splitDocuments(pdfDocument);
-
     const result = await upsertDocsToVectorstore(store, docs, file.name);
 }
 
@@ -110,12 +109,9 @@ const upsertDocsToVectorstore = async (
     docs: Document[],
     filename: string
 ) => {
-    const ids = [];
     const encoder = new TextEncoder();
     for (const doc of docs) {
-        doc.metadata = { ...doc.metadata, filename }
-
-        console.log(doc.metadata);
+        doc.metadata = { filename }
 
         const insecureHash = await crypto.subtle.digest(
             "SHA-1",
@@ -126,8 +122,40 @@ const upsertDocsToVectorstore = async (
         const readableId = hashArray
             .map((b) => b.toString(16).padStart(2, "0"))
             .join("");
-        ids.push(readableId);
+
+        doc.id = readableId;
     }
-    const result = await vectorstore.addDocuments(docs, { ids });
+
+    const result = await vectorstore.addDocuments(docs);
+
+    console.log(result);
+
     return result;
 };
+
+export async function deleteVectors(locals: App.Locals) {
+    const { AI, VECTORIZE } = locals.runtime.env;
+
+    const { data } = await AI.run("@cf/baai/bge-base-en-v1.5", {
+        text: ["delete"],
+    });
+
+    const values = data[0];
+
+    let matches = await VECTORIZE.query(values, {
+        topK: 100,
+    });
+
+    console.log(matches);
+
+    const ids = matches.matches.map((m) => m.id)
+
+    console.log(ids);
+
+    const result = await VECTORIZE.deleteByIds(ids);
+
+    console.log(result);
+
+
+
+}
