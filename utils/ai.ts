@@ -179,7 +179,7 @@ async function getContext(inputText: string, documentKey: string, locals: App.Lo
     const values = data[0];
 
     let matches = await VECTORIZE.query(values, {
-        topK: 3,
+        topK: 5,
         filter: { filename: documentKey },
         returnValues: true,
         returnMetadata: 'all',
