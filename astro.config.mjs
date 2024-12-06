@@ -17,5 +17,10 @@ export default defineConfig({
     }
   }),
 
-  integrations: [tailwind(), react()]
+  integrations: [tailwind(), react()],
+  vite: {
+    ssr: {
+      noExternal: ['pdf-parse'], // Exclude pdf-parse from the build
+    },
+  },
 });
