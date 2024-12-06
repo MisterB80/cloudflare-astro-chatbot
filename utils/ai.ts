@@ -17,6 +17,9 @@ import {
 } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
+import { getResolvedPDFJS } from 'unpdf'
+
+const { getDocument } = await getResolvedPDFJS()
 
 export async function chat(inputText: string, sessionId: string, documentKey: string | null, locals: App.Locals): Promise<string> {
 
@@ -90,6 +93,10 @@ export async function ingestPdf(file: any, locals: App.Locals) {
 
     const loader = new PDFLoader(file, {
         splitPages: false,
+        pdfjs: async () => ({
+            getDocument,
+            version: "custom-unpdf",
+        }),
     });
 
     const textSplitter = new RecursiveCharacterTextSplitter({
