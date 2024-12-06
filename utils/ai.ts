@@ -1,6 +1,3 @@
-import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { Document } from "@langchain/core/documents";
 import { VectorStore } from "@langchain/core/vectorstores";
 
 import {
@@ -17,9 +14,11 @@ import {
 } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import { getResolvedPDFJS } from 'unpdf'
 
-const { getDocument } = await getResolvedPDFJS()
+import { extractText, getDocumentProxy } from "unpdf";
+import { Document } from "langchain/document";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+
 
 export async function chat(inputText: string, sessionId: string, documentKey: string | null, locals: App.Locals): Promise<string> {
 
@@ -91,13 +90,6 @@ export async function ingestPdf(file: any, locals: App.Locals) {
 
     const { AI, VECTORIZE } = locals.runtime.env;
 
-    const loader = new PDFLoader(file, {
-        splitPages: false,
-        pdfjs: async () => ({
-            getDocument,
-            version: "custom-unpdf",
-        }),
-    });
 
     const textSplitter = new RecursiveCharacterTextSplitter({
         chunkSize: 500,
@@ -114,9 +106,17 @@ export async function ingestPdf(file: any, locals: App.Locals) {
         index: VECTORIZE,
     });
 
-    const pdfDocument = await loader.load();
-    const docs = await textSplitter.splitDocuments(pdfDocument);
-    const result = await upsertDocsToVectorstore(store, docs, file.name);
+    const arrayBuffer = await file.arrayBuffer();
+
+    const pdf = await getDocumentProxy(new Uint8Array(arrayBuffer));
+
+    const { totalPages, text } = await extractText(pdf, { mergePages: true });
+
+    const docOutput = await textSplitter.splitDocuments([
+        new Document({ pageContent: text }),
+    ]);
+
+    const result = await upsertDocsToVectorstore(store, docOutput, file.name);
 }
 
 const upsertDocsToVectorstore = async (
