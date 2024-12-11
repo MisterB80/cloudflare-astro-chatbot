@@ -32,6 +32,7 @@ const ChatComponent = (props: InputProps) => {
     if (!message.trim()) return;
 
     setChatHistory(prevChatHistory => [...prevChatHistory, { source: "user", message }]);
+    setMessage(''); // Clear input after sending
 
     const response = await fetch('/api/chat', {
       method: 'POST',
@@ -42,11 +43,10 @@ const ChatComponent = (props: InputProps) => {
     const data: any = await response.json();
 
     setChatHistory(prevChatHistory => [...prevChatHistory, { source: "ai", message: data }]);
-    setMessage(''); // Clear input after sending
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-[calc(100vh-50px)]">
       {/* Chat History Section */}
       <div className="flex-1 overflow-y-auto p-4">
         <div className="flex flex-col gap-2">
