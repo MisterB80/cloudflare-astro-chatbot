@@ -19,7 +19,7 @@ export default defineConfig({
   integrations: [tailwind(), react(), clerk()],
   vite: {
     ssr: {
-      external: ['pdf-parse'], // Exclude pdf-parse from the build
+      external: ['pdf-parse', 'node:async_hooks'], // Exclude pdf-parse from the build
     },
   },
 });
