@@ -13,24 +13,14 @@ node_compat = true
 [observability]
 enabled = true
 
-
 [ai]
 binding = "AI"
-
 
 [[d1_databases]]
 binding = "DB"
 database_name = "langchain-chat"
 database_id = "e9b21d99-6312-44d1-ae57-715dbb471d2d"
 preview_database_id = "DB"
-
-# [env.preview]
-# name = "preview"
-# [[env.preview.d1_databases]]
-# binding = "DB"
-# database_name = "chat-preview"
-# database_id = "f8d093b8-82ed-464a-91fc-e9bfee69bee1"
-
 
 [[vectorize]]
 binding = "VECTORIZE"
@@ -39,7 +29,6 @@ index_name = "document-vector-index"
 [vars]
 CLOUDFLARE_ACCOUNT_ID = "$CLOUDFLARE_ACCOUNT_ID"
 CLOUDFLARE_API_TOKEN = "$CLOUDFLARE_API_TOKEN"
-
 
 [[r2_buckets]]
 binding = "R2_BUCKET"

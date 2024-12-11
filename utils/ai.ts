@@ -40,7 +40,6 @@ export async function chat(inputText: string, sessionId: string, documentKey: st
     });
 
     let SYSTEM_TEMPLATE = "You are a helpful assistant. Ensure responses are coherent, concise and make complete sense in the language used. If you don't know something or are unfamiliar, please don't make anything up, just say that you don't know."
-    let context = "";
 
     if (documentKey) {
         SYSTEM_TEMPLATE += `Use the following pieces of context to answer the question at the end.
@@ -70,7 +69,6 @@ export async function chat(inputText: string, sessionId: string, documentKey: st
         new StringOutputParser(),
     ]);
 
-    // const chainInput = context ? { input: inputText, context } : { input: inputText };
     const chainInput = { input: inputText };
 
     const res = await chain.invoke(chainInput);
@@ -80,8 +78,6 @@ export async function chat(inputText: string, sessionId: string, documentKey: st
             output: res,
         });
     }
-    console.log(res);
-
 
     return res;
 }
