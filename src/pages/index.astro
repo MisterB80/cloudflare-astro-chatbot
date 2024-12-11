@@ -11,6 +11,9 @@ type File = {
 
 const fetchFiles = async () => {
    const response = await fetch(`${Astro.url.origin}/api/files`);
+
+   console.log(response);
+
    const files = await response.json();
    return files as File[];
 };

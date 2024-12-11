@@ -21,6 +21,7 @@
     "@astrojs/cloudflare": "^11.2.0",
     "@astrojs/react": "^3.6.2",
     "@astrojs/tailwind": "^5.1.2",
+    "@clerk/astro": "^2.1.0",
     "@cloudflare/ai": "^1.2.2",
     "@langchain/cloudflare": "^0.1.0",
     "@langchain/community": "^0.3.16",

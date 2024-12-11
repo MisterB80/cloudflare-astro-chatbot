@@ -1,4 +1,6 @@
 ---
+import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/astro/components';
+
 interface Props {
    title: string;
 }
@@ -18,7 +20,13 @@ const { title } = Astro.props;
    </head>
    <body>
       <main class="container mx-auto">
-         <slot />
+         <SignedIn>
+            <UserButton />
+            <slot />
+         </SignedIn>
+         <SignedOut>
+            <SignInButton />
+         </SignedOut>
       </main>
    </body>
 </html>
